@@ -1,0 +1,62 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+@import '../../tailwind.css';
+
+html {
+  scroll-behavior: smooth;
+}
+
+/* Base dark theme */
+body {
+  @apply bg-slate-950 text-slate-100;
+  font-family: 'Inter', sans-serif;
+}
+
+/* Gradient text utility */
+.gradient-text {
+  background: linear-gradient(135deg, #a78bfa, #60a5fa, #34d399);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Gradient button style */
+.btn-gradient {
+  @apply bg-gradient-to-r from-indigo-500 to-cyan-400 text-slate-950 font-bold;
+  @apply hover:shadow-lg hover:shadow-indigo-500/50 transition-all duration-200;
+  @apply hover:-translate-y-0.5;
+}
+
+/* Glass morphism cards */
+.glass-card {
+  @apply bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl;
+  @apply hover:bg-white/8 transition-colors duration-200;
+}
+
+/* Glow effect on focus */
+.input-glow:focus {
+  @apply ring-2 ring-indigo-500/50 border-indigo-500;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(99, 102, 241, 0.3);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(99, 102, 241, 0.5);
+}
+
+/* Smooth transitions */
+* {
+  @apply transition-colors duration-200;
+}
