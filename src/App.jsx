@@ -1,15 +1,24 @@
+// App.jsx
+// FIXED VERSION - Includes Signup route
+// Replace your entire src/App.jsx with this file
+
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider, useAuth } from './hooks/useAuth'
 import Landing from './pages/Landing'
 import Dashboard from './pages/Dashboard'
 import Pricing from './pages/Pricing'
 import Login from './pages/Login'
+import Signup from './pages/Signup' // ✅ Added Signup import
 
 function ProtectedRoute({ children }) {
   const { user, loading } = useAuth()
 
   if (loading) {
-    return <div className="min-h-screen bg-slate-950 flex items-center justify-center text-white">Loading...</div>
+    return (
+      <div className="min-h-screen bg-slate-950 flex items-center justify-center text-white">
+        Loading...
+      </div>
+    )
   }
 
   if (!user) {
@@ -24,6 +33,7 @@ function AppRoutes() {
     <Routes>
       <Route path="/" element={<Landing />} />
       <Route path="/login" element={<Login />} />
+      <Route path="/signup" element={<Signup />} /> {/* ✅ Added Signup route */}
       <Route path="/pricing" element={<Pricing />} />
       <Route
         path="/dashboard"

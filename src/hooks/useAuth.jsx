@@ -1,5 +1,8 @@
+// hooks/useAuth.js
+// FIXED VERSION - No navigation, just auth logic
+// Replace your entire hooks/useAuth.js with this file
+
 import { createContext, useContext, useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 
 const AuthContext = createContext()
@@ -8,7 +11,6 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null)
   const [profile, setProfile] = useState(null)
   const [loading, setLoading] = useState(true)
-  const navigate = useNavigate()
 
   // Initialize auth on mount
   useEffect(() => {
@@ -56,6 +58,7 @@ export function AuthProvider({ children }) {
     initAuth()
   }, [])
 
+  // Sign up function (NO navigation - let the page handle it)
   const signUp = async (email, password) => {
     const { data, error } = await supabase.auth.signUp({
       email,
@@ -68,10 +71,10 @@ export function AuthProvider({ children }) {
     if (error) throw error
 
     // Profile is auto-created via trigger
-    navigate('/dashboard')
     return data
   }
 
+  // Sign in function (NO navigation - let the page handle it)
   const signIn = async (email, password) => {
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
@@ -80,18 +83,18 @@ export function AuthProvider({ children }) {
 
     if (error) throw error
 
-    navigate('/dashboard')
     return data
   }
 
+  // Sign out function (NO navigation - let the page handle it)
   const signOut = async () => {
     const { error } = await supabase.auth.signOut()
     if (error) throw error
     setUser(null)
     setProfile(null)
-    navigate('/')
   }
 
+  // Update profile function
   const updateProfile = async (updates) => {
     if (!user) throw new Error('Not authenticated')
 
