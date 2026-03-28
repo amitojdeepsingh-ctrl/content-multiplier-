@@ -1,0 +1,45 @@
+# Netlify Configuration File
+# This tells Netlify how to build and deploy your app
+
+[build]
+  # Command to build your app
+  command = "npm run build"
+  
+  # Directory where built files are stored
+  publish = "dist"
+  
+  # Directory where Netlify Functions are stored
+  functions = "netlify/functions"
+
+# Environment variables
+# These are set in Netlify Dashboard, not here
+# But you can add defaults for local development
+
+[dev]
+  # Local development server port
+  port = 8888
+  
+  # Functions server port
+  functionsPort = 9999
+
+# Headers for security and performance
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-XSS-Protection = "1; mode=block"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+
+# Redirects for SPA routing
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# Redirect for Stripe webhook (if needed)
+[[redirects]]
+  from = "/.netlify/functions/stripe-webhook"
+  to = "/.netlify/functions/stripe-webhook"
+  status = 200
+  force = true
