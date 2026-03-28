@@ -13,6 +13,9 @@ export default function Pricing() {
   const [loading, setLoading] = useState(null);
   const [error, setError] = useState('');
 
+const handleCheckout = async (plan) => {
+  console.log('Button clicked! Plan:', plan);
+
   const handleCheckout = async (plan) => {
     if (!user) {
       // Redirect to login if not authenticated
