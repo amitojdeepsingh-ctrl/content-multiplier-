@@ -8,7 +8,8 @@ import Landing from './pages/Landing'
 import Dashboard from './pages/Dashboard'
 import Pricing from './pages/Pricing'
 import Login from './pages/Login'
-import Signup from './pages/Signup' // ✅ Added Signup import
+import Signup from './pages/Signup'
+import ScheduledPosts from './pages/ScheduledPosts'
 
 function ProtectedRoute({ children }) {
   const { user, loading } = useAuth()
@@ -40,6 +41,14 @@ function AppRoutes() {
         element={
           <ProtectedRoute>
             <Dashboard />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/scheduled"
+        element={
+          <ProtectedRoute>
+            <ScheduledPosts />
           </ProtectedRoute>
         }
       />

@@ -12,6 +12,9 @@
 [functions."transform"]
   timeout = 26
 
+[functions."check-scheduled-posts"]
+  schedule = "0 * * * *"
+
 # Environment variables
 # These are set in Netlify Dashboard, not here
 # But you can add defaults for local development
