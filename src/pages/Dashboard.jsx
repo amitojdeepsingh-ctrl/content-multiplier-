@@ -2,15 +2,15 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
 import { supabase } from '../lib/supabase'
-import { Copy, LogOut, Home, Calendar, Clock, CheckCircle, XCircle, Link, Loader, BarChart2, User } from 'lucide-react'
+import { Copy, LogOut, Home, Calendar, Clock, CheckCircle, XCircle, Link, Loader, BarChart2, User, Lock } from 'lucide-react'
 
 const platforms = [
   { id: 'twitter',    name: 'Twitter/X',  icon: '🐦', count: '3 tweets' },
   { id: 'linkedin',   name: 'LinkedIn',   icon: '💼', count: '3 posts' },
   { id: 'instagram',  name: 'Instagram',  icon: '📸', count: '3 captions' },
   { id: 'facebook',   name: 'Facebook',   icon: '👥', count: '3 posts' },
-  { id: 'threads',    name: 'Threads',    icon: '🧵', count: '3 posts' },
   { id: 'tiktok',     name: 'TikTok',     icon: '🎵', count: '3 hook+script+tags' },
+  { id: 'threads',    name: 'Threads',    icon: '🧵', count: '3 posts' },
   { id: 'youtube',    name: 'YouTube',    icon: '▶️', count: '1 description' },
   { id: 'pinterest',  name: 'Pinterest',  icon: '📌', count: '3 pins' },
   { id: 'reddit',     name: 'Reddit',     icon: '🤖', count: '3 posts' },
@@ -19,9 +19,20 @@ const platforms = [
   { id: 'email',      name: 'Email',      icon: '📧', count: '1 template' },
 ]
 
+// Determine platform limit based on transforms_limit (proxy for plan)
+// free=4, starter=10 → 5 platforms | pro=50, agency=null → all 12
+function getPlatformLimit(profile) {
+  const limit = profile?.transforms_limit
+  if (limit == null || limit >= 50) return 12  // pro / agency / unlimited
+  return 5                                       // free / starter
+}
+
 export default function Dashboard() {
   const navigate = useNavigate()
   const { user, profile, signOut } = useAuth()
+
+  const platformLimit = getPlatformLimit(profile)
+  const isPro = platformLimit === 12
 
   const [content, setContent] = useState('')
   const [urlInput, setUrlInput] = useState('')
@@ -33,6 +44,7 @@ export default function Dashboard() {
   const [results, setResults] = useState(null)
   const [activeTab, setActiveTab] = useState('twitter')
   const [copied, setCopied] = useState(false)
+  const [platformLimitHit, setPlatformLimitHit] = useState(false)
 
   // Scheduling state
   const [scheduleMode, setScheduleMode] = useState(false)
@@ -67,9 +79,15 @@ export default function Dashboard() {
   }
 
   const togglePlatform = (id) => {
-    setSelectedPlatforms(prev =>
-      prev.includes(id) ? prev.filter(p => p !== id) : [...prev, id]
-    )
+    setPlatformLimitHit(false)
+    setSelectedPlatforms(prev => {
+      if (prev.includes(id)) return prev.filter(p => p !== id)
+      if (prev.length >= platformLimit) {
+        setPlatformLimitHit(true)
+        return prev // block selection, show upgrade prompt
+      }
+      return [...prev, id]
+    })
   }
 
   const handleTransform = async () => {
@@ -337,23 +355,71 @@ export default function Dashboard() {
             </div>
 
             <div className="glass-card p-6 rounded-xl">
-              <h3 className="text-lg font-bold mb-3">Select Platforms</h3>
-              <div className="space-y-2">
-                {platforms.map(platform => (
-                  <button
-                    key={platform.id}
-                    onClick={() => togglePlatform(platform.id)}
-                    className={`w-full text-left p-3 rounded-lg font-semibold transition flex items-center justify-between ${
-                      selectedPlatforms.includes(platform.id)
-                        ? 'bg-gradient-to-r from-indigo-500 to-cyan-400 text-slate-950'
-                        : 'border border-slate-700 hover:bg-slate-800 text-slate-300'
-                    }`}
-                  >
-                    <span><span className="mr-2">{platform.icon}</span>{platform.name}</span>
-                    <span className="text-xs opacity-70">{platform.count}</span>
-                  </button>
-                ))}
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-lg font-bold">Select Platforms</h3>
+                <span className="text-xs text-slate-400">
+                  {selectedPlatforms.length}/{platformLimit} selected
+                </span>
               </div>
+
+              {/* Platform limit upgrade prompt */}
+              {platformLimitHit && (
+                <div className="mb-3 bg-yellow-500/10 border border-yellow-500/40 rounded-xl p-3 flex items-center justify-between gap-3">
+                  <p className="text-yellow-300 text-xs font-medium">
+                    🔒 Upgrade to Pro to select all 12 platforms at once
+                  </p>
+                  <button
+                    onClick={() => navigate('/pricing')}
+                    className="btn-gradient px-3 py-1 rounded-lg text-xs font-bold flex-shrink-0"
+                  >
+                    Upgrade
+                  </button>
+                </div>
+              )}
+
+              <div className="space-y-2">
+                {platforms.map((platform, index) => {
+                  const isSelected = selectedPlatforms.includes(platform.id)
+                  const isLocked = !isPro && index >= platformLimit && !isSelected
+                  return (
+                    <button
+                      key={platform.id}
+                      onClick={() => !isLocked && togglePlatform(platform.id)}
+                      className={`w-full text-left p-3 rounded-lg font-semibold transition flex items-center justify-between ${
+                        isSelected
+                          ? 'bg-gradient-to-r from-indigo-500 to-cyan-400 text-slate-950'
+                          : isLocked
+                          ? 'border border-slate-800 text-slate-600 cursor-default'
+                          : 'border border-slate-700 hover:bg-slate-800 text-slate-300'
+                      }`}
+                    >
+                      <span>
+                        <span className="mr-2">{platform.icon}</span>
+                        {platform.name}
+                      </span>
+                      <span className="flex items-center gap-1.5 text-xs opacity-70">
+                        {isLocked ? (
+                          <>
+                            <Lock size={11} />
+                            <span className="text-yellow-500 font-bold">PRO</span>
+                          </>
+                        ) : (
+                          platform.count
+                        )}
+                      </span>
+                    </button>
+                  )
+                })}
+              </div>
+
+              {!isPro && (
+                <p className="text-xs text-slate-500 mt-3 text-center">
+                  <button onClick={() => navigate('/pricing')} className="text-indigo-400 hover:underline">
+                    Upgrade to Pro
+                  </button>{' '}
+                  to unlock all 12 platforms at once
+                </p>
+              )}
             </div>
 
             {/* Brand profile active indicator */}
