@@ -1,7 +1,6 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
-import { pricingPlans, createCheckoutSession, createPortalSession } from '../lib/stripe';
+import { pricingPlans, createPortalSession } from '../lib/stripe';
 
 export default function Pricing() {
   const navigate = useNavigate();
@@ -10,22 +9,30 @@ export default function Pricing() {
   const [error, setError] = useState('');
 
   const handleCheckout = async (plan) => {
-    console.log('🔴 BUTTON CLICKED! Plan:', plan);
-    
-    if (!user) {
-      navigate('/login', { state: { from: '/pricing' } });
-      return;
-    }
-
     setLoading(plan.id);
     setError('');
 
     try {
-      const session = await createCheckoutSession(plan.id);
-      window.location.href = session.url;
+      const response = await fetch('/.netlify/functions/create-checkout-session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ planId: plan.id }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || data.error || 'Checkout failed');
+      }
+
+      if (!data.url) {
+        throw new Error('No checkout URL returned');
+      }
+
+      window.location.href = data.url;
     } catch (err) {
       console.error('Checkout error:', err);
-      setError('Failed to start checkout. Please try again.');
+      setError('Error: ' + err.message);
     } finally {
       setLoading(null);
     }
