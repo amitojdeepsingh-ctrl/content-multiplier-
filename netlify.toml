@@ -12,6 +12,9 @@
 [functions."transform"]
   timeout = 26
 
+[functions."save-profile"]
+  timeout = 20
+
 [functions."check-scheduled-posts"]
   schedule = "0 * * * *"
 
