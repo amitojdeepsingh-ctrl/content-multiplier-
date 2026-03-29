@@ -1,7 +1,8 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
-import { ArrowLeft, Save, Check, User, Building2, RefreshCw } from 'lucide-react'
+import { supabase } from '../lib/supabase'
+import { ArrowLeft, Save, Check, User, Building2, RefreshCw, AlertCircle } from 'lucide-react'
 
 const industries = [
   { id: 'coaching',     label: 'Coaching / Consulting',  icon: '🎯' },
@@ -76,6 +77,8 @@ export default function BrandProfile() {
 
   const [saving, setSaving] = useState(false)
   const [saved, setSaved]   = useState(false)
+  const [saveError, setSaveError] = useState('')
+  const safetyTimer = useRef(null)
 
   // Form fields — populated from profile on load
   const [orgType,           setOrgType]     = useState('')
@@ -115,9 +118,23 @@ export default function BrandProfile() {
   }
 
   const handleSave = async () => {
+    if (saving) return
     setSaving(true)
+    setSaveError('')
+    setSaved(false)
+
+    // Safety net — always reset after 12s no matter what
+    clearTimeout(safetyTimer.current)
+    safetyTimer.current = setTimeout(() => {
+      setSaving(false)
+      setSaveError('Save timed out. Please try again.')
+    }, 12000)
+
     try {
-      await updateProfile({
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session?.access_token) throw new Error('Not logged in')
+
+      const payload = {
         org_type:          orgType,
         brand_name:        brandName.trim(),
         brand_description: brandDescription.trim(),
@@ -128,13 +145,30 @@ export default function BrandProfile() {
         content_tone:      tone,
         custom_voice:      customVoice.trim(),
         onboarded:         true,
+      }
+
+      const res = await fetch('/.netlify/functions/save-profile', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify(payload),
       })
+
+      const json = await res.json()
+
+      if (!res.ok) throw new Error(json.error || `Server error ${res.status}`)
+
+      clearTimeout(safetyTimer.current)
+      setSaving(false)
       setSaved(true)
       setTimeout(() => navigate('/dashboard'), 1500)
+
     } catch (err) {
-      alert('Error saving: ' + err.message)
-    } finally {
+      clearTimeout(safetyTimer.current)
       setSaving(false)
+      setSaveError(err.message || 'Something went wrong. Please try again.')
     }
   }
 
@@ -163,12 +197,14 @@ export default function BrandProfile() {
           <button
             onClick={handleSave}
             disabled={saving}
-            className={`flex items-center gap-2 px-5 py-2 rounded-lg font-bold text-sm transition ${saved ? 'bg-green-500/20 border border-green-500 text-green-400' : 'btn-gradient'} disabled:opacity-50`}
+            className={`flex items-center gap-2 px-5 py-2 rounded-lg font-bold text-sm transition ${saved ? 'bg-green-500/20 border border-green-500 text-green-400' : saveError ? 'bg-red-500/20 border border-red-500 text-red-400' : 'btn-gradient'} disabled:opacity-50`}
           >
             {saving ? (
               <><RefreshCw size={14} className="animate-spin" /> Saving...</>
             ) : saved ? (
-              <><Check size={14} /> Saved! Redirecting...</>
+              <><Check size={14} /> Saved!</>
+            ) : saveError ? (
+              <><AlertCircle size={14} /> Failed — try again</>
             ) : (
               <><Save size={14} /> Save Changes</>
             )}
@@ -337,6 +373,17 @@ export default function BrandProfile() {
             <div className="text-xs text-slate-600 mt-1">{customVoice.length}/600</div>
           </div>
         </div>
+
+        {/* Error banner */}
+        {saveError && (
+          <div className="flex items-start gap-3 bg-red-500/10 border border-red-500/50 text-red-400 px-5 py-4 rounded-xl">
+            <AlertCircle size={18} className="flex-shrink-0 mt-0.5" />
+            <div>
+              <p className="font-semibold text-sm">Could not save</p>
+              <p className="text-sm opacity-80 mt-0.5">{saveError}</p>
+            </div>
+          </div>
+        )}
 
         {/* Save button (bottom) */}
         <div className="flex justify-end pb-8">
