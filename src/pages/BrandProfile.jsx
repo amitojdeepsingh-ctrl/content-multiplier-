@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
-import { supabase } from '../lib/supabase'
 import { ArrowLeft, Save, Check, User, Building2, RefreshCw, AlertCircle } from 'lucide-react'
 
 const industries = [
@@ -73,7 +72,7 @@ function SectionTitle({ children, sub }) {
 
 export default function BrandProfile() {
   const navigate = useNavigate()
-  const { profile, updateProfile } = useAuth()
+  const { profile, accessToken } = useAuth()
 
   const [saving, setSaving] = useState(false)
   const [saved, setSaved]   = useState(false)
@@ -131,8 +130,7 @@ export default function BrandProfile() {
     }, 12000)
 
     try {
-      const { data: { session } } = await supabase.auth.getSession()
-      if (!session?.access_token) throw new Error('Not logged in')
+      if (!accessToken) throw new Error('Not logged in — please refresh the page')
 
       const payload = {
         org_type:          orgType,
@@ -151,7 +149,7 @@ export default function BrandProfile() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${session.access_token}`,
+          'Authorization': `Bearer ${accessToken}`,
         },
         body: JSON.stringify(payload),
       })

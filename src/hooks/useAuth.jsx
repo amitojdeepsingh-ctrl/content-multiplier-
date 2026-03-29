@@ -11,6 +11,7 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null)
   const [profile, setProfile] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [accessToken, setAccessToken] = useState(null)
 
   // Initialize auth on mount
   useEffect(() => {
@@ -19,6 +20,7 @@ export function AuthProvider({ children }) {
         // Get current session
         const { data: { session } } = await supabase.auth.getSession()
         setUser(session?.user || null)
+        setAccessToken(session?.access_token || null)
 
         if (session?.user) {
           // Load profile
@@ -38,6 +40,7 @@ export function AuthProvider({ children }) {
       // Listen for auth changes
       const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
         setUser(session?.user || null)
+        setAccessToken(session?.access_token || null)
         if (session?.user) {
           const { data } = await supabase
             .from('profiles')
@@ -47,6 +50,7 @@ export function AuthProvider({ children }) {
           setProfile(data)
         } else {
           setProfile(null)
+          setAccessToken(null)
         }
       })
 
@@ -133,7 +137,7 @@ export function AuthProvider({ children }) {
   }
 
   return (
-    <AuthContext.Provider value={{ user, profile, loading, signUp, signIn, signOut, updateProfile }}>
+    <AuthContext.Provider value={{ user, profile, loading, accessToken, signUp, signIn, signOut, updateProfile }}>
       {children}
     </AuthContext.Provider>
   )
