@@ -94,26 +94,42 @@ export function AuthProvider({ children }) {
     setProfile(null)
   }
 
-  // Update profile function
+  // Update profile function — uses Netlify function to bypass RLS
   const updateProfile = async (updates) => {
     if (!user) throw new Error('Not authenticated')
 
-    const timeout = new Promise((_, reject) =>
-      setTimeout(() => reject(new Error('Save timed out — check your connection and try again')), 10000)
-    )
+    // Get the current session token
+    const { data: { session } } = await supabase.auth.getSession()
+    if (!session?.access_token) throw new Error('Not authenticated')
 
-    const save = supabase
-      .from('profiles')
-      .update(updates)
-      .eq('id', user.id)
-      .select()
-      .single()
+    const controller = new AbortController()
+    const timeoutId = setTimeout(() => controller.abort(), 10000)
 
-    const { data, error } = await Promise.race([save, timeout])
+    try {
+      const response = await fetch('/.netlify/functions/save-profile', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify(updates),
+        signal: controller.signal,
+      })
 
-    if (error) throw error
-    setProfile(data)
-    return data
+      clearTimeout(timeoutId)
+
+      const data = await response.json()
+      if (!response.ok) throw new Error(data.error || 'Failed to save profile')
+
+      setProfile(data.profile)
+      return data.profile
+    } catch (err) {
+      clearTimeout(timeoutId)
+      if (err.name === 'AbortError') {
+        throw new Error('Save timed out — check your connection and try again')
+      }
+      throw err
+    }
   }
 
   return (
