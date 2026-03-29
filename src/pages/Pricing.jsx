@@ -1,9 +1,56 @@
 import { useState } from 'react';
-import { useAuth } from '../hooks/useAuth';
-import { pricingPlans, createPortalSession } from '../lib/stripe';
+
+const plans = [
+  {
+    id: 'starter',
+    name: 'Starter',
+    price: 9,
+    interval: 'month',
+    popular: false,
+    features: [
+      '10 transformations/month',
+      'All platforms (Twitter, LinkedIn, Instagram, Email, TikTok)',
+      'Standard AI quality',
+      'Copy-paste functionality',
+      'Email support'
+    ]
+  },
+  {
+    id: 'pro',
+    name: 'Pro',
+    price: 19,
+    interval: 'month',
+    popular: true,
+    features: [
+      '50 transformations/month',
+      'All platforms',
+      'Premium AI quality',
+      'Custom brand voice',
+      'Export to CSV/PDF',
+      'Priority email support',
+      'Save unlimited transformations'
+    ]
+  },
+  {
+    id: 'agency',
+    name: 'Agency',
+    price: 49,
+    interval: 'month',
+    popular: false,
+    features: [
+      'Unlimited transformations',
+      'Everything in Pro',
+      'White-label (remove branding)',
+      'Up to 5 team seats',
+      'Unlimited brand voices',
+      'API access',
+      'Priority support + Slack channel',
+      'Client reporting'
+    ]
+  }
+];
 
 export default function Pricing() {
-  const { user, profile } = useAuth();
   const [loading, setLoading] = useState(null);
   const [error, setError] = useState('');
 
@@ -25,7 +72,7 @@ export default function Pricing() {
       }
 
       if (!data.url) {
-        throw new Error('No checkout URL returned');
+        throw new Error('No checkout URL returned from server');
       }
 
       window.location.href = data.url;
@@ -34,16 +81,6 @@ export default function Pricing() {
       setError('Error: ' + err.message);
     } finally {
       setLoading(null);
-    }
-  };
-
-  const handleManageSubscription = async () => {
-    try {
-      const portalSession = await createPortalSession();
-      window.location.href = portalSession.url;
-    } catch (err) {
-      console.error('Portal error:', err);
-      setError('Failed to open subscription management.');
     }
   };
 
@@ -59,30 +96,14 @@ export default function Pricing() {
           </p>
         </div>
 
-        {profile?.plan && (
-          <div className="bg-blue-600/10 border border-blue-600 rounded-lg p-4 mb-8 text-center">
-            <p className="text-blue-400">
-              Current Plan: <strong className="text-white capitalize">{profile.plan}</strong>
-            </p>
-            {profile.plan !== 'free' && (
-              <button
-                onClick={handleManageSubscription}
-                className="mt-2 text-sm text-blue-400 hover:text-blue-300 underline"
-              >
-                Manage Subscription
-              </button>
-            )}
-          </div>
-        )}
-
         {error && (
-          <div className="bg-red-500/10 border border-red-500 text-red-500 p-3 rounded mb-8 text-center">
+          <div className="bg-red-500/10 border border-red-500 text-red-500 p-4 rounded mb-8 text-center text-lg">
             {error}
           </div>
         )}
 
         <div className="grid md:grid-cols-3 gap-8">
-          {pricingPlans.map((plan) => (
+          {plans.map((plan) => (
             <div
               key={plan.id}
               className={`relative bg-slate-900 rounded-2xl p-8 border-2 transition-all hover:scale-105 ${
