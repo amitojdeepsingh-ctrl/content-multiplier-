@@ -10,6 +10,8 @@ import Pricing from './pages/Pricing'
 import Login from './pages/Login'
 import Signup from './pages/Signup'
 import ScheduledPosts from './pages/ScheduledPosts'
+import Analytics from './pages/Analytics'
+import Onboarding from './pages/Onboarding'
 
 function ProtectedRoute({ children }) {
   const { user, loading } = useAuth()
@@ -49,6 +51,22 @@ function AppRoutes() {
         element={
           <ProtectedRoute>
             <ScheduledPosts />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/analytics"
+        element={
+          <ProtectedRoute>
+            <Analytics />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/onboarding"
+        element={
+          <ProtectedRoute>
+            <Onboarding />
           </ProtectedRoute>
         }
       />

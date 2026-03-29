@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
 import { supabase } from '../lib/supabase'
-import { Copy, LogOut, Home, Calendar, Clock, CheckCircle, XCircle, Link, Loader } from 'lucide-react'
+import { Copy, LogOut, Home, Calendar, Clock, CheckCircle, XCircle, Link, Loader, BarChart2 } from 'lucide-react'
 
 const platforms = [
   { id: 'twitter',    name: 'Twitter/X',  icon: '🐦', count: '3 tweets' },
@@ -41,6 +41,7 @@ export default function Dashboard() {
   const [scheduling, setScheduling] = useState(false)
   const [scheduleSuccess, setScheduleSuccess] = useState(null) // platform name or 'all'
   const [scheduleError, setScheduleError] = useState('')
+  const [limitHit, setLimitHit] = useState(false)
 
   const handleFetchUrl = async () => {
     if (!urlInput.trim()) return
@@ -73,10 +74,21 @@ export default function Dashboard() {
 
   const handleTransform = async () => {
     if (!content.trim() || selectedPlatforms.length === 0) return
+
+    // Check usage limit (only applies to plans with a limit)
+    if (profile?.transforms_limit != null) {
+      const used = profile.transforms_used || 0
+      if (used >= profile.transforms_limit) {
+        setLimitHit(true)
+        return
+      }
+    }
+
     setLoading(true)
     setResults(null)
     setScheduleMode(false)
     setScheduleSuccess(null)
+    setLimitHit(false)
 
     try {
       const response = await fetch('/.netlify/functions/transform', {
@@ -89,6 +101,14 @@ export default function Dashboard() {
       const data = await response.json()
       setResults(data.results)
       setActiveTab(selectedPlatforms[0])
+
+      // Increment usage counter
+      if (user && profile?.transforms_limit != null) {
+        await supabase
+          .from('profiles')
+          .update({ transforms_used: (profile.transforms_used || 0) + 1 })
+          .eq('id', user.id)
+      }
     } catch (error) {
       alert('Error: ' + error.message)
     } finally {
@@ -188,6 +208,13 @@ export default function Dashboard() {
             >
               <Calendar size={16} />
               <span className="hidden sm:inline">Scheduled</span>
+            </button>
+            <button
+              onClick={() => navigate('/analytics')}
+              className="flex items-center gap-2 border border-slate-700 hover:border-cyan-500 hover:text-cyan-400 text-slate-300 px-3 py-2 rounded-lg transition text-sm"
+            >
+              <BarChart2 size={16} />
+              <span className="hidden sm:inline">Analytics</span>
             </button>
             <button
               onClick={() => navigate('/pricing')}
@@ -300,6 +327,21 @@ export default function Dashboard() {
                 ))}
               </div>
             </div>
+
+            {/* Limit warning */}
+            {limitHit && (
+              <div className="glass-card border border-yellow-500/50 bg-yellow-500/10 p-5 rounded-xl text-center space-y-3">
+                <div className="text-3xl">🚀</div>
+                <p className="font-bold text-yellow-300">You've used all your free transforms this month</p>
+                <p className="text-sm text-slate-400">Upgrade to keep creating content across all 12 platforms.</p>
+                <button
+                  onClick={() => navigate('/pricing')}
+                  className="btn-gradient px-6 py-2 rounded-lg font-bold text-sm w-full"
+                >
+                  Upgrade Now →
+                </button>
+              </div>
+            )}
 
             <button
               onClick={handleTransform}
