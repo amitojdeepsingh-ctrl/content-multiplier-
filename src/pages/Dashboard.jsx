@@ -94,7 +94,21 @@ export default function Dashboard() {
       const response = await fetch('/.netlify/functions/transform', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ content, platforms: selectedPlatforms, brandProfile: profile || null }),
+        body: JSON.stringify({
+          content,
+          platforms: selectedPlatforms,
+          brandProfile: profile ? {
+            brand_name:        profile.brand_name,
+            brand_description: profile.brand_description,
+            org_type:          profile.org_type,
+            industry:          profile.industry,
+            target_age_groups: profile.target_age_groups,
+            target_location:   profile.target_location,
+            content_goals:     profile.content_goals,
+            content_tone:      profile.content_tone,
+            custom_voice:      profile.custom_voice,
+          } : null,
+        }),
       })
 
       if (!response.ok) throw new Error('Transform failed')

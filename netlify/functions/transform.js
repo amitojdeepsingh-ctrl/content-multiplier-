@@ -123,7 +123,12 @@ export const handler = async (event) => {
 
     // Build one combined prompt for all platforms at once
     const sections = platforms.map(p => platformInstructions[p]).filter(Boolean).join('\n\n');
-    const brandContext = buildBrandContext(brandProfile);
+    let brandContext = '';
+    try {
+      brandContext = buildBrandContext(brandProfile) || '';
+    } catch (e) {
+      console.error('Brand context error:', e.message);
+    }
 
     const prompt = `You are an expert social media manager. Transform the content below into platform-specific posts.
 ${brandContext}
