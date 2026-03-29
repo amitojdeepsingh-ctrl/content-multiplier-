@@ -30,7 +30,9 @@ export default function Dashboard() {
 
     setLoading(true)
     try {
-      const { data: { session } } = await (await import('../lib/supabase')).supabase.auth.getSession()const response = await fetch('/.netlify/functions/transform', {
+      const { data: { session } } = await (await import('../lib/supabase')).supabase.auth.getSession();
+
+const response = await fetch('/.netlify/functions/transform', {
 
         method: 'POST',
         headers: {
