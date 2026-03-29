@@ -6,14 +6,11 @@ export const handler = async (event) => {
   }
 
   try {
-    // Get auth token
+    // Parse user ID directly from JWT — no HTTP call
     const authHeader = event.headers.authorization || event.headers.Authorization || '';
     const token = authHeader.replace('Bearer ', '').trim();
-    if (!token) {
-      return { statusCode: 401, body: JSON.stringify({ error: 'Not authenticated' }) };
-    }
+    if (!token) return { statusCode: 401, body: JSON.stringify({ error: 'Not authenticated' }) };
 
-    // Parse user ID directly from JWT — no HTTP call needed
     let userId;
     try {
       const payload = JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString());
@@ -21,40 +18,37 @@ export const handler = async (event) => {
     } catch {
       return { statusCode: 401, body: JSON.stringify({ error: 'Invalid token' }) };
     }
+    if (!userId) return { statusCode: 401, body: JSON.stringify({ error: 'No user ID in token' }) };
 
-    if (!userId) {
-      return { statusCode: 401, body: JSON.stringify({ error: 'Could not read user from token' }) };
-    }
-
-    // Parse body
+    // Parse and filter updates
     const updates = JSON.parse(event.body);
-
-    // Only allow safe profile fields
     const allowed = ['org_type','brand_name','brand_description','industry',
       'target_age_groups','target_location','content_goals',
       'content_tone','custom_voice','onboarded','transforms_used','transforms_limit'];
 
-    const safeUpdates = {};
+    const safeUpdates = { id: userId };
     for (const key of allowed) {
       if (key in updates) safeUpdates[key] = updates[key];
     }
 
-    if (Object.keys(safeUpdates).length === 0) {
-      return { statusCode: 400, body: JSON.stringify({ error: 'No valid fields' }) };
-    }
-
-    // Use service role — bypasses RLS
     const supabase = createClient(
       process.env.VITE_SUPABASE_URL,
       process.env.SUPABASE_SERVICE_ROLE_KEY
     );
 
-    const { data, error } = await supabase
+    // Use UPSERT instead of UPDATE — avoids RLS UPDATE hang
+    const dbCall = supabase
       .from('profiles')
-      .update(safeUpdates)
-      .eq('id', userId)
+      .upsert(safeUpdates, { onConflict: 'id' })
       .select()
       .single();
+
+    // Hard 8-second timeout on the DB call
+    const timeout = new Promise((_, reject) =>
+      setTimeout(() => reject(new Error('Database call timed out after 8s')), 8000)
+    );
+
+    const { data, error } = await Promise.race([dbCall, timeout]);
 
     if (error) {
       return { statusCode: 500, body: JSON.stringify({ error: error.message, code: error.code }) };
