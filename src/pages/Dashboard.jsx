@@ -111,7 +111,10 @@ export default function Dashboard() {
         }),
       })
 
-      if (!response.ok) throw new Error('Transform failed')
+      if (!response.ok) {
+        const errData = await response.json().catch(() => ({}))
+        throw new Error(errData.error || `Server error ${response.status}`)
+      }
       const data = await response.json()
       setResults(data.results)
       setActiveTab(selectedPlatforms[0])
@@ -124,7 +127,7 @@ export default function Dashboard() {
           .eq('id', user.id)
       }
     } catch (error) {
-      alert('Error: ' + error.message)
+      alert('Generation error: ' + error.message)
     } finally {
       setLoading(false)
     }
