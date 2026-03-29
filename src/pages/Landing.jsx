@@ -1,5 +1,6 @@
 import { Link, useNavigate } from 'react-router-dom'
 import { ChevronDown, Check } from 'lucide-react'
+import { useAuth } from '../hooks/useAuth'
 
 const pricingPlans = [
   { id: 'free',    name: 'Free',    price: '$0',  limit: '4 transforms',  features: ['4 per month', 'All platforms', 'Basic support'], popular: false },
@@ -10,6 +11,7 @@ const pricingPlans = [
 
 export default function Landing() {
   const navigate = useNavigate()
+  const { user } = useAuth()
 
   const handlePlanClick = (planId) => {
     if (planId === 'free') {
@@ -31,8 +33,16 @@ export default function Landing() {
             <a href="#faq" className="text-slate-300 hover:text-white transition">FAQ</a>
           </div>
           <div className="flex gap-3 items-center">
-            <Link to="/login" className="text-slate-300 hover:text-white transition">Login</Link>
-            <Link to="/signup" className="btn-gradient px-6 py-2 rounded-lg text-sm font-bold">Get Started Free</Link>
+            {user ? (
+              <Link to="/dashboard" className="btn-gradient px-6 py-2 rounded-lg text-sm font-bold">
+                Go to Dashboard →
+              </Link>
+            ) : (
+              <>
+                <Link to="/login" className="text-slate-300 hover:text-white transition">Login</Link>
+                <Link to="/signup" className="btn-gradient px-6 py-2 rounded-lg text-sm font-bold">Get Started Free</Link>
+              </>
+            )}
           </div>
         </div>
       </nav>
@@ -47,9 +57,15 @@ export default function Landing() {
             AI-powered content repurposing for Twitter, LinkedIn, Instagram, Email & TikTok. Paste your content. Get platform-ready posts instantly.
           </p>
           <div className="flex gap-4 justify-center flex-wrap">
-            <Link to="/signup" className="btn-gradient px-8 py-4 rounded-lg text-lg font-bold inline-block">
-              Start Free — No Credit Card
-            </Link>
+            {user ? (
+              <Link to="/dashboard" className="btn-gradient px-8 py-4 rounded-lg text-lg font-bold inline-block">
+                Go to Dashboard →
+              </Link>
+            ) : (
+              <Link to="/signup" className="btn-gradient px-8 py-4 rounded-lg text-lg font-bold inline-block">
+                Start Free — No Credit Card
+              </Link>
+            )}
             <a
               href="#how-it-works"
               className="border-2 border-slate-700 hover:border-slate-500 px-8 py-4 rounded-lg font-bold transition"
@@ -204,9 +220,15 @@ export default function Landing() {
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="text-4xl font-bold mb-6">Stop Spending Hours on Social Media Content</h2>
           <p className="text-xl text-slate-300 mb-8">Start for free. No credit card required. Try it now.</p>
-          <Link to="/signup" className="btn-gradient px-10 py-5 rounded-lg text-xl font-bold inline-block">
-            Start Free Today →
-          </Link>
+          {user ? (
+            <Link to="/dashboard" className="btn-gradient px-10 py-5 rounded-lg text-xl font-bold inline-block">
+              Go to Dashboard →
+            </Link>
+          ) : (
+            <Link to="/signup" className="btn-gradient px-10 py-5 rounded-lg text-xl font-bold inline-block">
+              Start Free Today →
+            </Link>
+          )}
         </div>
       </section>
 
