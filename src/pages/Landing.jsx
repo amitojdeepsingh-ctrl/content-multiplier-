@@ -1,7 +1,24 @@
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { ChevronDown, Check } from 'lucide-react'
 
+const pricingPlans = [
+  { id: 'free',    name: 'Free',    price: '$0',  limit: '4 transforms',  features: ['4 per month', 'All platforms', 'Basic support'], popular: false },
+  { id: 'starter', name: 'Starter', price: '$9',  limit: '10 transforms', features: ['10 per month', 'All platforms', 'Email support'], popular: false },
+  { id: 'pro',     name: 'Pro',     price: '$19', limit: '50 transforms', features: ['50 per month', 'All platforms', 'Priority support', 'Brand voice'], popular: true },
+  { id: 'agency',  name: 'Agency',  price: '$49', limit: 'Unlimited',     features: ['Unlimited transforms', 'All platforms', 'Dedicated support', 'Team access'], popular: false },
+]
+
 export default function Landing() {
+  const navigate = useNavigate()
+
+  const handlePlanClick = (planId) => {
+    if (planId === 'free') {
+      navigate('/signup')
+    } else {
+      navigate('/pricing')
+    }
+  }
+
   return (
     <div className="min-h-screen bg-slate-950">
       {/* Header/Navbar */}
@@ -13,9 +30,9 @@ export default function Landing() {
             <a href="#pricing" className="text-slate-300 hover:text-white transition">Pricing</a>
             <a href="#faq" className="text-slate-300 hover:text-white transition">FAQ</a>
           </div>
-          <div className="flex gap-3">
-            <Link to="/login" className="text-slate-300 hover:text-white">Login</Link>
-            <Link to="/login" className="btn-gradient px-6 py-2 rounded-lg text-sm font-bold">Get Started Free</Link>
+          <div className="flex gap-3 items-center">
+            <Link to="/login" className="text-slate-300 hover:text-white transition">Login</Link>
+            <Link to="/signup" className="btn-gradient px-6 py-2 rounded-lg text-sm font-bold">Get Started Free</Link>
           </div>
         </div>
       </nav>
@@ -30,12 +47,15 @@ export default function Landing() {
             AI-powered content repurposing for Twitter, LinkedIn, Instagram, Email & TikTok. Paste your content. Get platform-ready posts instantly.
           </p>
           <div className="flex gap-4 justify-center flex-wrap">
-            <Link to="/login" className="btn-gradient px-8 py-4 rounded-lg text-lg font-bold inline-block">
+            <Link to="/signup" className="btn-gradient px-8 py-4 rounded-lg text-lg font-bold inline-block">
               Start Free — No Credit Card
             </Link>
-            <button className="border-2 border-slate-700 hover:border-slate-600 px-8 py-4 rounded-lg font-bold transition">
-              Watch Demo (2 min)
-            </button>
+            <a
+              href="#how-it-works"
+              className="border-2 border-slate-700 hover:border-slate-500 px-8 py-4 rounded-lg font-bold transition"
+            >
+              See How It Works ↓
+            </a>
           </div>
 
           {/* Hero stats */}
@@ -77,7 +97,7 @@ export default function Landing() {
       </section>
 
       {/* How It Works */}
-      <section className="py-20 px-6">
+      <section id="how-it-works" className="py-20 px-6">
         <div className="max-w-6xl mx-auto">
           <h2 className="text-4xl font-bold text-center mb-16">From Content to Posts in 30 Seconds</h2>
           <div className="grid md:grid-cols-3 gap-8">
@@ -88,7 +108,7 @@ export default function Landing() {
             ].map((step, i) => (
               <div key={i} className="relative">
                 <div className="glass-card p-8 rounded-xl text-center">
-                  <div className="inline-block w-12 h-12 bg-gradient-to-br from-indigo-500 to-cyan-400 rounded-full flex items-center justify-center text-white font-bold text-lg mb-4">
+                  <div className="inline-flex w-12 h-12 bg-gradient-to-br from-indigo-500 to-cyan-400 rounded-full items-center justify-center text-white font-bold text-lg mb-4">
                     {step.num}
                   </div>
                   <div className="text-4xl mb-4">{step.icon}</div>
@@ -129,19 +149,17 @@ export default function Landing() {
           <p className="text-center text-slate-400 mb-12">No hidden fees. Cancel anytime.</p>
 
           <div className="grid md:grid-cols-4 gap-6">
-            {[
-              { name: 'Free', price: '$0', limit: '4 transforms', features: ['4 per month', 'All platforms', 'Basic support'] },
-              { name: 'Starter', price: '$9', limit: '10 transforms', features: ['10 per month', 'All platforms', 'Email support'] },
-              { name: 'Pro', price: '$19', limit: '50 transforms', features: ['50 per month', 'All platforms', 'Priority support', 'Brand voice'], popular: true },
-              { name: 'Agency', price: '$49', limit: 'Unlimited', features: ['Unlimited transforms', 'All platforms', 'Dedicated support', 'Team access'] },
-            ].map(plan => (
-              <div key={plan.name} className={`rounded-xl p-8 border transition ${plan.popular ? 'ring-2 ring-indigo-500 bg-indigo-500/10' : 'glass-card'}`}>
+            {pricingPlans.map(plan => (
+              <div key={plan.id} className={`rounded-xl p-8 border transition ${plan.popular ? 'ring-2 ring-indigo-500 bg-indigo-500/10' : 'glass-card'}`}>
                 {plan.popular && <div className="text-indigo-400 text-xs font-bold mb-2">🔥 MOST POPULAR</div>}
                 <h3 className="text-xl font-bold mb-2">{plan.name}</h3>
                 <div className="text-3xl font-bold gradient-text mb-1">{plan.price}</div>
-                <div className="text-sm text-slate-400 mb-6">{plan.limit}</div>
-                <button className={`w-full py-2 rounded-lg font-bold mb-6 ${plan.popular ? 'btn-gradient' : 'border border-slate-700 hover:bg-slate-800'}`}>
-                  Get Started
+                <div className="text-sm text-slate-400 mb-6">{plan.limit}/mo</div>
+                <button
+                  onClick={() => handlePlanClick(plan.id)}
+                  className={`w-full py-2 rounded-lg font-bold mb-6 transition ${plan.popular ? 'btn-gradient' : 'border border-slate-700 hover:bg-slate-800'}`}
+                >
+                  {plan.id === 'free' ? 'Start Free' : 'Get Started'}
                 </button>
                 <ul className="space-y-3">
                   {plan.features.map((f, i) => (
@@ -165,7 +183,7 @@ export default function Landing() {
             {[
               { q: 'How does the AI know my voice?', a: 'Pro users can save brand voice settings (tone, style, audience). These are applied to every transformation.' },
               { q: 'What if the content is too short?', a: 'We recommend at least 300 words for best results. The more content, the better the output.' },
-              { q: 'Can I edit the generated posts?', a: 'Absolutely. Copy them into your content calendar and tweak as needed. They\'re templates, not final.' },
+              { q: 'Can I edit the generated posts?', a: "Absolutely. Copy them into your content calendar and tweak as needed. They're templates, not final." },
               { q: 'Do you store my content?', a: 'We keep transformation history for your reference. You can delete it anytime from your dashboard.' },
               { q: 'What if I hit my monthly limit?', a: 'Upgrade anytime. Your unused credits roll over to the next month.' },
             ].map((item, i) => (
@@ -186,7 +204,7 @@ export default function Landing() {
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="text-4xl font-bold mb-6">Stop Spending Hours on Social Media Content</h2>
           <p className="text-xl text-slate-300 mb-8">Start for free. No credit card required. Try it now.</p>
-          <Link to="/login" className="btn-gradient px-10 py-5 rounded-lg text-xl font-bold inline-block">
+          <Link to="/signup" className="btn-gradient px-10 py-5 rounded-lg text-xl font-bold inline-block">
             Start Free Today →
           </Link>
         </div>
@@ -203,24 +221,25 @@ export default function Landing() {
             <div>
               <h4 className="font-bold mb-3">Product</h4>
               <ul className="space-y-2 text-sm text-slate-400">
-                <li><a href="#" className="hover:text-white">Features</a></li>
-                <li><a href="#" className="hover:text-white">Pricing</a></li>
-                <li><a href="#" className="hover:text-white">Roadmap</a></li>
+                <li><a href="#features" className="hover:text-white transition">Features</a></li>
+                <li><a href="#pricing" className="hover:text-white transition">Pricing</a></li>
+                <li><Link to="/signup" className="hover:text-white transition">Sign Up</Link></li>
               </ul>
             </div>
             <div>
-              <h4 className="font-bold mb-3">Company</h4>
+              <h4 className="font-bold mb-3">Account</h4>
               <ul className="space-y-2 text-sm text-slate-400">
-                <li><a href="#" className="hover:text-white">About</a></li>
-                <li><a href="#" className="hover:text-white">Blog</a></li>
-                <li><a href="#" className="hover:text-white">Contact</a></li>
+                <li><Link to="/login" className="hover:text-white transition">Login</Link></li>
+                <li><Link to="/signup" className="hover:text-white transition">Sign Up</Link></li>
+                <li><Link to="/pricing" className="hover:text-white transition">Upgrade Plan</Link></li>
               </ul>
             </div>
             <div>
               <h4 className="font-bold mb-3">Legal</h4>
               <ul className="space-y-2 text-sm text-slate-400">
-                <li><a href="#" className="hover:text-white">Privacy</a></li>
-                <li><a href="#" className="hover:text-white">Terms</a></li>
+                <li><a href="#faq" className="hover:text-white transition">FAQ</a></li>
+                <li><a href="#" className="hover:text-white transition">Privacy</a></li>
+                <li><a href="#" className="hover:text-white transition">Terms</a></li>
               </ul>
             </div>
           </div>
