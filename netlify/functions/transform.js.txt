@@ -1,0 +1,71 @@
+// netlify/functions/transform.js
+const Anthropic = require('@anthropic-ai/sdk');
+
+const anthropic = new Anthropic({
+  apiKey: process.env.ANTHROPIC_API_KEY,
+});
+
+exports.handler = async (event, context) => {
+  // Only allow POST
+  if (event.httpMethod !== 'POST') {
+    return {
+      statusCode: 400,
+      body: JSON.stringify({ error: 'Method not allowed' })
+    };
+  }
+
+  try {
+    const { content, platforms } = JSON.parse(event.body);
+
+    if (!content || !platforms || platforms.length === 0) {
+      return {
+        statusCode: 400,
+        body: JSON.stringify({ error: 'Content and platforms are required' })
+      };
+    }
+
+    // Build prompt based on selected platforms
+    const platformPrompts = {
+      twitter: 'Generate 7 Twitter posts (max 280 chars each, numbered 1/7 to 7/7)',
+      linkedin: 'Generate 5 LinkedIn posts (150-300 words each, professional tone)',
+      instagram: 'Generate 3 Instagram captions (100-200 words each, with emojis and hashtags)',
+      email: 'Generate 1 email newsletter (300-500 words, with 5 subject line options)',
+      tiktok: 'Generate 5 TikTok hooks (under 15 words each, with visual directions)'
+    };
+
+    const selectedPlatforms = platforms.map(p => platformPrompts[p]).join('\n\n');
+
+    const response = await anthropic.messages.create({
+      model: 'claude-sonnet-4-5-20250929',
+      max_tokens: 4000,
+      messages: [
+        {
+          role: 'user',
+          content: `Transform this content for social media:\n\n${content}\n\n${selectedPlatforms}`
+        }
+      ]
+    });
+
+    const aiResponse = response.content[0].text;
+
+    // Parse response into platform sections
+    const results = {
+      twitter: aiResponse,
+      linkedin: aiResponse,
+      instagram: aiResponse,
+      email: aiResponse,
+      tiktok: aiResponse
+    };
+
+    return {
+      statusCode: 200,
+      body: JSON.stringify({ results })
+    };
+  } catch (error) {
+    console.error('Transform error:', error);
+    return {
+      statusCode: 500,
+      body: JSON.stringify({ error: error.message })
+    };
+  }
+};
