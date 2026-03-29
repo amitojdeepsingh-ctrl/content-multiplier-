@@ -130,7 +130,7 @@ export default function BrandProfile() {
         onboarded:         true,
       })
       setSaved(true)
-      setTimeout(() => setSaved(false), 3000)
+      setTimeout(() => navigate('/dashboard'), 1500)
     } catch (err) {
       alert('Error saving: ' + err.message)
     } finally {
@@ -168,7 +168,7 @@ export default function BrandProfile() {
             {saving ? (
               <><RefreshCw size={14} className="animate-spin" /> Saving...</>
             ) : saved ? (
-              <><Check size={14} /> Saved!</>
+              <><Check size={14} /> Saved! Redirecting...</>
             ) : (
               <><Save size={14} /> Save Changes</>
             )}
@@ -348,7 +348,7 @@ export default function BrandProfile() {
             {saving ? (
               <><RefreshCw size={18} className="animate-spin" /> Saving...</>
             ) : saved ? (
-              <><Check size={18} /> Changes Saved!</>
+              <><Check size={18} /> Saved! Taking you to dashboard...</>
             ) : (
               <><Save size={18} /> Save Brand Profile</>
             )}
