@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
 import { supabase } from '../lib/supabase'
-import { Copy, LogOut, Home, Calendar, Clock, CheckCircle, XCircle, Link, Loader, BarChart2 } from 'lucide-react'
+import { Copy, LogOut, Home, Calendar, Clock, CheckCircle, XCircle, Link, Loader, BarChart2, User } from 'lucide-react'
 
 const platforms = [
   { id: 'twitter',    name: 'Twitter/X',  icon: '🐦', count: '3 tweets' },
@@ -94,7 +94,7 @@ export default function Dashboard() {
       const response = await fetch('/.netlify/functions/transform', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ content, platforms: selectedPlatforms }),
+        body: JSON.stringify({ content, platforms: selectedPlatforms, brandProfile: profile || null }),
       })
 
       if (!response.ok) throw new Error('Transform failed')
@@ -217,6 +217,17 @@ export default function Dashboard() {
               <span className="hidden sm:inline">Analytics</span>
             </button>
             <button
+              onClick={() => navigate('/brand-profile')}
+              className="flex items-center gap-2 border border-slate-700 hover:border-purple-500 hover:text-purple-400 text-slate-300 px-3 py-2 rounded-lg transition text-sm relative"
+              title="Brand Profile"
+            >
+              <User size={16} />
+              <span className="hidden sm:inline">Brand</span>
+              {profile?.brand_name && (
+                <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-green-400 rounded-full border border-slate-950" title="Brand profile active" />
+              )}
+            </button>
+            <button
               onClick={() => navigate('/pricing')}
               className="flex items-center gap-2 border border-cyan-700 hover:border-cyan-500 text-cyan-400 px-3 py-2 rounded-lg transition text-sm font-medium"
             >
@@ -327,6 +338,33 @@ export default function Dashboard() {
                 ))}
               </div>
             </div>
+
+            {/* Brand profile active indicator */}
+            {profile?.brand_name && (
+              <div className="flex items-center justify-between bg-purple-500/10 border border-purple-500/30 rounded-xl px-4 py-3 text-sm">
+                <div className="flex items-center gap-2">
+                  <span className="w-2 h-2 bg-green-400 rounded-full" />
+                  <span className="text-slate-300">Brand profile active: <span className="text-purple-300 font-semibold">{profile.brand_name}</span></span>
+                </div>
+                <button
+                  onClick={() => navigate('/brand-profile')}
+                  className="text-xs text-purple-400 hover:text-purple-300 transition underline"
+                >
+                  Edit
+                </button>
+              </div>
+            )}
+            {!profile?.brand_name && (
+              <div className="flex items-center justify-between bg-slate-800/60 border border-slate-700 rounded-xl px-4 py-3 text-sm">
+                <span className="text-slate-400">No brand profile set — posts will be generic</span>
+                <button
+                  onClick={() => navigate('/brand-profile')}
+                  className="text-xs text-indigo-400 hover:text-indigo-300 transition underline"
+                >
+                  Set up brand →
+                </button>
+              </div>
+            )}
 
             {/* Limit warning */}
             {limitHit && (

@@ -12,6 +12,7 @@ import Signup from './pages/Signup'
 import ScheduledPosts from './pages/ScheduledPosts'
 import Analytics from './pages/Analytics'
 import Onboarding from './pages/Onboarding'
+import BrandProfile from './pages/BrandProfile'
 
 function ProtectedRoute({ children }) {
   const { user, loading } = useAuth()
@@ -67,6 +68,14 @@ function AppRoutes() {
         element={
           <ProtectedRoute>
             <Onboarding />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/brand-profile"
+        element={
+          <ProtectedRoute>
+            <BrandProfile />
           </ProtectedRoute>
         }
       />

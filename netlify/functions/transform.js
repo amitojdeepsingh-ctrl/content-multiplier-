@@ -19,13 +19,103 @@ const platformInstructions = {
   email:      'EMAIL: Write 1 email newsletter (200-300 words) with 3 subject line options at the very top prefixed with "Subject line options:" then the full email body below',
 };
 
+const industryLabels = {
+  coaching: 'Coaching & Consulting', ecommerce: 'E-commerce & Products',
+  saas: 'SaaS & Tech', creator: 'Content Creation', agency: 'Marketing Agency',
+  realestate: 'Real Estate', finance: 'Finance & Investing', health: 'Health & Wellness',
+  education: 'Education & Courses', food: 'Food & Restaurant', fashion: 'Fashion & Beauty',
+  travel: 'Travel & Hospitality', legal: 'Legal & Professional Services',
+  nonprofit: 'Non-profit / NGO', immigration: 'Immigration Services', other: 'General',
+};
+
+const locationLabels = {
+  local: 'local audience', national: 'national audience', northamerica: 'North American audience',
+  uk_europe: 'UK & European audience', asia: 'Asian & Pacific audience', global: 'global audience',
+};
+
+const ageLabels = {
+  'under18': 'under 18', '18-24': '18-24 year olds', '25-34': '25-34 year olds',
+  '35-44': '35-44 year olds', '45-54': '45-54 year olds', '55+': 'over 55s', all: 'all age groups',
+};
+
+const toneLabels = {
+  professional: 'professional and authoritative',
+  casual: 'casual, warm, and approachable',
+  bold: 'bold, direct, and no-nonsense',
+  educational: 'educational and informative',
+  inspirational: 'inspirational and story-driven',
+  humorous: 'humorous and entertaining',
+};
+
+const goalLabels = {
+  awareness: 'building brand awareness', leads: 'generating leads', sales: 'driving sales',
+  community: 'growing a community', authority: 'establishing thought leadership',
+  traffic: 'driving website traffic', engagement: 'increasing engagement', recruitment: 'attracting talent',
+};
+
+function buildBrandContext(brandProfile) {
+  if (!brandProfile) return '';
+
+  const lines = [];
+
+  if (brandProfile.brand_name) {
+    const type = brandProfile.org_type === 'personal' ? 'personal brand' : 'business';
+    lines.push(`Brand: "${brandProfile.brand_name}" (${type})`);
+  }
+
+  if (brandProfile.brand_description) {
+    lines.push(`What they do: ${brandProfile.brand_description}`);
+  }
+
+  if (brandProfile.industry && industryLabels[brandProfile.industry]) {
+    lines.push(`Industry: ${industryLabels[brandProfile.industry]}`);
+  }
+
+  if (brandProfile.target_age_groups) {
+    const ages = brandProfile.target_age_groups.split(',')
+      .map(a => ageLabels[a.trim()] || a.trim())
+      .filter(Boolean);
+    if (ages.length > 0) lines.push(`Target audience ages: ${ages.join(', ')}`);
+  }
+
+  if (brandProfile.target_location && locationLabels[brandProfile.target_location]) {
+    lines.push(`Geographic focus: ${locationLabels[brandProfile.target_location]}`);
+  }
+
+  if (brandProfile.content_goals) {
+    const goals = brandProfile.content_goals.split(',')
+      .map(g => goalLabels[g.trim()] || g.trim())
+      .filter(Boolean);
+    if (goals.length > 0) lines.push(`Content goals: ${goals.join(', ')}`);
+  }
+
+  if (brandProfile.content_tone && toneLabels[brandProfile.content_tone]) {
+    lines.push(`Tone & voice: ${toneLabels[brandProfile.content_tone]}`);
+  }
+
+  if (brandProfile.custom_voice) {
+    lines.push(`Additional voice instructions: ${brandProfile.custom_voice}`);
+  }
+
+  if (lines.length === 0) return '';
+
+  return `
+BRAND CONTEXT — Apply this to EVERY post you write:
+${lines.map(l => `• ${l}`).join('\n')}
+
+Write every post AS IF you are the social media manager for "${brandProfile.brand_name || 'this brand'}".
+Match the tone, speak to the exact audience described, and write with the stated goals in mind.
+Generic, one-size-fits-all content is NOT acceptable — make it specific to this brand.
+`;
+}
+
 export const handler = async (event) => {
   if (event.httpMethod !== 'POST') {
     return { statusCode: 405, body: JSON.stringify({ error: 'Method not allowed' }) };
   }
 
   try {
-    const { content, platforms } = JSON.parse(event.body);
+    const { content, platforms, brandProfile } = JSON.parse(event.body);
 
     if (!content || !platforms || platforms.length === 0) {
       return { statusCode: 400, body: JSON.stringify({ error: 'Content and platforms are required' }) };
@@ -33,9 +123,10 @@ export const handler = async (event) => {
 
     // Build one combined prompt for all platforms at once
     const sections = platforms.map(p => platformInstructions[p]).filter(Boolean).join('\n\n');
+    const brandContext = buildBrandContext(brandProfile);
 
-    const prompt = `You are a social media expert. Transform the content below into posts for each platform listed.
-
+    const prompt = `You are an expert social media manager. Transform the content below into platform-specific posts.
+${brandContext}
 IMPORTANT: Use this EXACT format with these EXACT section headers:
 ---TWITTER---
 (twitter posts here)
@@ -46,9 +137,9 @@ IMPORTANT: Use this EXACT format with these EXACT section headers:
 ---EMAIL---
 (email here)
 ---TIKTOK---
-(tiktok hooks here)
+(tiktok content here)
 
-Only include sections for the platforms requested below.
+Only include sections for the platforms requested below. Do not include any other text outside the sections.
 
 CONTENT TO TRANSFORM:
 ${content}
