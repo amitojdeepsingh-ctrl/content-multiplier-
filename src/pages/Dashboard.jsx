@@ -5,11 +5,18 @@ import { supabase } from '../lib/supabase'
 import { Copy, LogOut, Home, Calendar, Clock, CheckCircle, XCircle, Link, Loader } from 'lucide-react'
 
 const platforms = [
-  { id: 'twitter',   name: 'Twitter',   icon: '🐦', count: '7 posts' },
-  { id: 'linkedin',  name: 'LinkedIn',  icon: '💼', count: '5 posts' },
-  { id: 'instagram', name: 'Instagram', icon: '📸', count: '3 posts' },
-  { id: 'email',     name: 'Email',     icon: '📧', count: '1 newsletter' },
-  { id: 'tiktok',    name: 'TikTok',    icon: '🎵', count: '5 hooks' },
+  { id: 'twitter',    name: 'Twitter/X',  icon: '🐦', count: '7 posts' },
+  { id: 'linkedin',   name: 'LinkedIn',   icon: '💼', count: '3 posts' },
+  { id: 'instagram',  name: 'Instagram',  icon: '📸', count: '3 captions' },
+  { id: 'facebook',   name: 'Facebook',   icon: '👥', count: '3 posts' },
+  { id: 'threads',    name: 'Threads',    icon: '🧵', count: '5 posts' },
+  { id: 'tiktok',     name: 'TikTok',     icon: '🎵', count: '5 hooks' },
+  { id: 'youtube',    name: 'YouTube',    icon: '▶️', count: '1 description' },
+  { id: 'pinterest',  name: 'Pinterest',  icon: '📌', count: '5 pins' },
+  { id: 'reddit',     name: 'Reddit',     icon: '🤖', count: '1 post' },
+  { id: 'whatsapp',   name: 'WhatsApp',   icon: '💬', count: '3 messages' },
+  { id: 'newsletter', name: 'Newsletter', icon: '📰', count: '1 article' },
+  { id: 'email',      name: 'Email',      icon: '📧', count: '1 newsletter' },
 ]
 
 export default function Dashboard() {
@@ -21,7 +28,7 @@ export default function Dashboard() {
   const [urlLoading, setUrlLoading] = useState(false)
   const [urlError, setUrlError] = useState('')
   const [inputMode, setInputMode] = useState('text') // 'text' or 'url'
-  const [selectedPlatforms, setSelectedPlatforms] = useState(['twitter', 'linkedin', 'email'])
+  const [selectedPlatforms, setSelectedPlatforms] = useState(['twitter', 'linkedin', 'instagram'])
   const [loading, setLoading] = useState(false)
   const [results, setResults] = useState(null)
   const [activeTab, setActiveTab] = useState('twitter')

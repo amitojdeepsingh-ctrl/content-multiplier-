@@ -5,11 +5,18 @@ const anthropic = new Anthropic({
 });
 
 const platformInstructions = {
-  twitter: 'TWITTER: Write 7 tweets (max 280 chars each, numbered 1/7 through 7/7)',
-  linkedin: 'LINKEDIN: Write 3 LinkedIn posts (100-200 words each, professional tone)',
-  instagram: 'INSTAGRAM: Write 3 Instagram captions (80-120 words each, with emojis and 5 relevant hashtags)',
-  email: 'EMAIL: Write 1 email newsletter (200-300 words, with 3 subject line options at the top)',
-  tiktok: 'TIKTOK: Write 5 TikTok hooks (under 15 words each, punchy and scroll-stopping)'
+  twitter:    'TWITTER: Write 7 tweets (max 280 chars each, numbered 1/7 through 7/7)',
+  linkedin:   'LINKEDIN: Write 3 LinkedIn posts (100-200 words each, professional tone)',
+  instagram:  'INSTAGRAM: Write 3 Instagram captions (80-120 words each, with emojis and 5 relevant hashtags)',
+  email:      'EMAIL: Write 1 email newsletter (200-300 words, with 3 subject line options at the top)',
+  tiktok:     'TIKTOK: Write 5 TikTok hooks (under 15 words each, punchy and scroll-stopping)',
+  facebook:   'FACEBOOK: Write 3 Facebook posts (80-150 words each, conversational and engaging, include a question to spark comments)',
+  threads:    'THREADS: Write 5 Threads posts (max 500 chars each, casual and conversational tone, like talking to a friend)',
+  youtube:    'YOUTUBE: Write 1 YouTube video description (150-200 words) with: a compelling first 2 lines, timestamps/chapters placeholder, and 10 SEO tags at the bottom prefixed with Tags:',
+  pinterest:  'PINTEREST: Write 5 Pinterest pin descriptions (50-80 words each, include 3-5 hashtags, focus on inspiration and discovery, describe the visual idea)',
+  reddit:     'REDDIT: Write 1 Reddit post with: a catchy title (under 300 chars) on the first line prefixed with "Title:", then the full post body (150-250 words, informative, no self-promotion tone, fits r/entrepreneur or r/marketing style)',
+  whatsapp:   'WHATSAPP: Write 3 WhatsApp broadcast messages (50-80 words each, friendly and personal tone, no formal language, include a clear call to action)',
+  newsletter: 'NEWSLETTER: Write 1 long-form newsletter article (400-500 words) in Substack/Medium style with: a bold headline, engaging intro, 3 key sections with subheadings, and a closing takeaway',
 };
 
 export const handler = async (event) => {
@@ -51,7 +58,7 @@ ${sections}`;
 
     const response = await anthropic.messages.create({
       model: 'claude-haiku-4-5-20251001',
-      max_tokens: 3000,
+      max_tokens: 5000,
       messages: [{ role: 'user', content: prompt }]
     });
 

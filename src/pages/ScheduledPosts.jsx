@@ -5,11 +5,18 @@ import { supabase } from '../lib/supabase'
 import { ArrowLeft, Clock, CheckCircle, AlertCircle, Trash2, RefreshCw } from 'lucide-react'
 
 const platformMeta = {
-  twitter:   { name: 'Twitter',   icon: '🐦', color: 'text-sky-400',    border: 'border-sky-800',    bg: 'bg-sky-900/20' },
-  linkedin:  { name: 'LinkedIn',  icon: '💼', color: 'text-blue-400',   border: 'border-blue-800',   bg: 'bg-blue-900/20' },
-  instagram: { name: 'Instagram', icon: '📸', color: 'text-pink-400',   border: 'border-pink-800',   bg: 'bg-pink-900/20' },
-  email:     { name: 'Email',     icon: '📧', color: 'text-amber-400',  border: 'border-amber-800',  bg: 'bg-amber-900/20' },
-  tiktok:    { name: 'TikTok',    icon: '🎵', color: 'text-purple-400', border: 'border-purple-800', bg: 'bg-purple-900/20' },
+  twitter:    { name: 'Twitter/X',  icon: '🐦', color: 'text-sky-400',     border: 'border-sky-800',     bg: 'bg-sky-900/20' },
+  linkedin:   { name: 'LinkedIn',   icon: '💼', color: 'text-blue-400',    border: 'border-blue-800',    bg: 'bg-blue-900/20' },
+  instagram:  { name: 'Instagram',  icon: '📸', color: 'text-pink-400',    border: 'border-pink-800',    bg: 'bg-pink-900/20' },
+  facebook:   { name: 'Facebook',   icon: '👥', color: 'text-blue-300',    border: 'border-blue-700',    bg: 'bg-blue-800/20' },
+  threads:    { name: 'Threads',    icon: '🧵', color: 'text-slate-300',   border: 'border-slate-600',   bg: 'bg-slate-700/20' },
+  tiktok:     { name: 'TikTok',     icon: '🎵', color: 'text-purple-400',  border: 'border-purple-800',  bg: 'bg-purple-900/20' },
+  youtube:    { name: 'YouTube',    icon: '▶️', color: 'text-red-400',     border: 'border-red-800',     bg: 'bg-red-900/20' },
+  pinterest:  { name: 'Pinterest',  icon: '📌', color: 'text-rose-400',    border: 'border-rose-800',    bg: 'bg-rose-900/20' },
+  reddit:     { name: 'Reddit',     icon: '🤖', color: 'text-orange-400',  border: 'border-orange-800',  bg: 'bg-orange-900/20' },
+  whatsapp:   { name: 'WhatsApp',   icon: '💬', color: 'text-green-400',   border: 'border-green-800',   bg: 'bg-green-900/20' },
+  newsletter: { name: 'Newsletter', icon: '📰', color: 'text-yellow-400',  border: 'border-yellow-800',  bg: 'bg-yellow-900/20' },
+  email:      { name: 'Email',      icon: '📧', color: 'text-amber-400',   border: 'border-amber-800',   bg: 'bg-amber-900/20' },
 }
 
 const statusMeta = {
