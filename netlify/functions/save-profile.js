@@ -36,10 +36,13 @@ export const handler = async (event) => {
       process.env.SUPABASE_SERVICE_ROLE_KEY
     );
 
-    // Use UPSERT instead of UPDATE — avoids RLS UPDATE hang
+    // Remove id from the update fields (it's only used in the WHERE clause)
+    const { id: _id, ...updateFields } = safeUpdates;
+
     const dbCall = supabase
       .from('profiles')
-      .upsert(safeUpdates, { onConflict: 'id' })
+      .update(updateFields)
+      .eq('id', userId)
       .select()
       .single();
 
