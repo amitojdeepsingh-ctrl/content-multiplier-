@@ -103,24 +103,18 @@ export default function Dashboard() {
   }
 
   const saveSchedule = async (posts) => {
-    // Get current session token
-    const { data: { session } } = await supabase.auth.getSession()
-    if (!session) {
-      navigate('/login')
-      return false
-    }
+    if (!user) { navigate('/login'); return false }
 
-    const response = await fetch('/.netlify/functions/save-scheduled-post', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${session.access_token}`,
-      },
-      body: JSON.stringify({ posts }),
-    })
+    const rows = posts.map(p => ({ ...p, user_id: user.id, status: 'scheduled' }))
 
-    const data = await response.json()
-    if (!response.ok) throw new Error(data.error || 'Failed to save')
+    // Race against a 10s timeout so it never hangs forever
+    const timeout = new Promise((_, reject) =>
+      setTimeout(() => reject(new Error('Timed out — check your internet and try again')), 10000)
+    )
+    const insert = supabase.from('scheduled_posts').insert(rows)
+    const { error } = await Promise.race([insert, timeout])
+
+    if (error) throw new Error(error.message)
     return true
   }
 
