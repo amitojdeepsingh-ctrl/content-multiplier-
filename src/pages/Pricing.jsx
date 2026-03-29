@@ -3,7 +3,6 @@ import { useAuth } from '../hooks/useAuth';
 import { pricingPlans, createPortalSession } from '../lib/stripe';
 
 export default function Pricing() {
-  const navigate = useNavigate();
   const { user, profile } = useAuth();
   const [loading, setLoading] = useState(null);
   const [error, setError] = useState('');
