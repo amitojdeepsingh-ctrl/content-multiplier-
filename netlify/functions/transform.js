@@ -5,18 +5,18 @@ const anthropic = new Anthropic({
 });
 
 const platformInstructions = {
-  twitter:    'TWITTER: Write 3 tweets (max 280 chars each, punchy and engaging, numbered Tweet 1, Tweet 2, Tweet 3)',
-  linkedin:   'LINKEDIN: Write 3 LinkedIn posts (100-200 words each, professional tone, each separated by a blank line)',
-  instagram:  'INSTAGRAM: Write 3 Instagram captions (80-120 words each, with emojis and 5 relevant hashtags, each separated by a blank line)',
-  facebook:   'FACEBOOK: Write 3 Facebook posts (80-150 words each, conversational and engaging, include a question to spark comments, each separated by a blank line)',
-  threads:    'THREADS: Write 3 Threads posts (max 500 chars each, casual and conversational tone like talking to a friend, each separated by a blank line)',
-  tiktok:     'TIKTOK: Write 3 TikTok video packages. Each package must have:\n- HOOK: One punchy opening line (under 15 words, scroll-stopping)\n- SCRIPT: A 20-30 second spoken script (about 60-80 words, energetic and conversational)\n- HASHTAGS: 5 relevant hashtags\nSeparate each package with "---"',
-  youtube:    'YOUTUBE: Write 1 YouTube video description (150-200 words) with: a compelling first 2 lines, timestamps/chapters placeholder, and 10 SEO tags at the bottom prefixed with "Tags:"',
-  pinterest:  'PINTEREST: Write 3 Pinterest pin descriptions (50-80 words each, include 3-5 hashtags, focus on inspiration and discovery, each separated by a blank line)',
-  reddit:     'REDDIT: Write 3 Reddit posts. Each must have a title line prefixed with "Title:" and a body (100-150 words, informative, no self-promotion tone). Separate each post with "---"',
-  whatsapp:   'WHATSAPP: Write 3 WhatsApp broadcast messages (50-80 words each, friendly and personal tone, no formal language, include a clear call to action, each separated by a blank line)',
-  newsletter: 'NEWSLETTER: Write 1 long-form newsletter article (400-500 words) in Substack/Medium style with: a bold headline, engaging intro, 3 key sections with subheadings, and a closing takeaway',
-  email:      'EMAIL: Write 1 email newsletter (200-300 words) with 3 subject line options at the very top prefixed with "Subject line options:" then the full email body below',
+  twitter:    'TWITTER: Write 3 tweets (max 280 chars each, punchy). Label Tweet 1, Tweet 2, Tweet 3.',
+  linkedin:   'LINKEDIN: Write 3 LinkedIn posts (60-100 words each, professional). Separate with blank line.',
+  instagram:  'INSTAGRAM: Write 3 captions (50-80 words each, add emojis + 5 hashtags). Separate with blank line.',
+  facebook:   'FACEBOOK: Write 3 posts (60-90 words each, conversational, end with a question). Separate with blank line.',
+  threads:    'THREADS: Write 3 posts (max 300 chars each, casual). Separate with blank line.',
+  tiktok:     'TIKTOK: Write 3 packages. Each: HOOK (under 12 words), SCRIPT (40-60 words spoken), HASHTAGS (5 tags). Separate with "---".',
+  youtube:    'YOUTUBE: Write 1 video description (100-150 words) with a strong opening line and 8 SEO tags prefixed "Tags:".',
+  pinterest:  'PINTEREST: Write 3 pin descriptions (40-60 words each, 3 hashtags). Separate with blank line.',
+  reddit:     'REDDIT: Write 3 posts. Each: "Title:" line + body (60-90 words, informative). Separate with "---".',
+  whatsapp:   'WHATSAPP: Write 3 broadcast messages (40-60 words each, friendly, clear CTA). Separate with blank line.',
+  newsletter: 'NEWSLETTER: Write 1 article (250-350 words) with headline, intro, 3 short sections with subheadings, closing takeaway.',
+  email:      'EMAIL: Write 1 email (150-200 words) with 2 subject line options prefixed "Subject:" then the email body.',
 };
 
 const industryLabels = {
@@ -154,7 +154,7 @@ ${sections}`;
 
     const response = await anthropic.messages.create({
       model: 'claude-haiku-4-5-20251001',
-      max_tokens: 4000,
+      max_tokens: 2500,
       messages: [{ role: 'user', content: prompt }]
     });
 

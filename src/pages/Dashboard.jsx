@@ -73,7 +73,7 @@ export default function Dashboard() {
   }
 
   const handleTransform = async () => {
-    if (!content.trim() || selectedPlatforms.length === 0) return
+    if (loading || !content.trim() || selectedPlatforms.length === 0) return
 
     // Check usage limit (only applies to plans with a limit)
     if (profile?.transforms_limit != null) {
