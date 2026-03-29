@@ -102,40 +102,47 @@ export default function Dashboard() {
     return d.toISOString().split('T')[0]
   }
 
+  const saveSchedule = async (posts) => {
+    // Get current session token
+    const { data: { session } } = await supabase.auth.getSession()
+    if (!session) {
+      navigate('/login')
+      return false
+    }
+
+    const response = await fetch('/.netlify/functions/save-scheduled-post', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${session.access_token}`,
+      },
+      body: JSON.stringify({ posts }),
+    })
+
+    const data = await response.json()
+    if (!response.ok) throw new Error(data.error || 'Failed to save')
+    return true
+  }
+
   const handleScheduleAll = async () => {
     if (!scheduleDate || !scheduleTime) {
       setScheduleError('Please pick a date and time.')
       return
     }
-    if (!user) {
-      navigate('/login')
-      return
-    }
-
     setScheduling(true)
     setScheduleError('')
-
     try {
       const scheduledAt = new Date(`${scheduleDate}T${scheduleTime}`).toISOString()
-
-      const rows = selectedPlatforms
+      const posts = selectedPlatforms
         .filter(p => results[p])
-        .map(p => ({
-          user_id: user.id,
-          platform: p,
-          content: results[p],
-          scheduled_at: scheduledAt,
-          status: 'scheduled',
-        }))
+        .map(p => ({ platform: p, content: results[p], scheduled_at: scheduledAt }))
 
-      const { error } = await supabase.from('scheduled_posts').insert(rows)
-      if (error) throw error
-
+      await saveSchedule(posts)
       setScheduleSuccess('all')
       setScheduleMode(false)
       setTimeout(() => setScheduleSuccess(null), 4000)
     } catch (err) {
-      setScheduleError('Failed to schedule: ' + err.message)
+      setScheduleError('Error: ' + err.message)
     } finally {
       setScheduling(false)
     }
@@ -146,31 +153,16 @@ export default function Dashboard() {
       setScheduleError('Please pick a date and time.')
       return
     }
-    if (!user) {
-      navigate('/login')
-      return
-    }
-
     setScheduling(true)
     setScheduleError('')
-
     try {
       const scheduledAt = new Date(`${scheduleDate}T${scheduleTime}`).toISOString()
-
-      const { error } = await supabase.from('scheduled_posts').insert({
-        user_id: user.id,
-        platform: activeTab,
-        content: results[activeTab],
-        scheduled_at: scheduledAt,
-        status: 'scheduled',
-      })
-      if (error) throw error
-
+      await saveSchedule([{ platform: activeTab, content: results[activeTab], scheduled_at: scheduledAt }])
       setScheduleSuccess(activeTab)
       setScheduleMode(false)
       setTimeout(() => setScheduleSuccess(null), 4000)
     } catch (err) {
-      setScheduleError('Failed to schedule: ' + err.message)
+      setScheduleError('Error: ' + err.message)
     } finally {
       setScheduling(false)
     }
