@@ -5,18 +5,18 @@ import { supabase } from '../lib/supabase'
 import { Copy, LogOut, Home, Calendar, Clock, CheckCircle, XCircle, Link, Loader } from 'lucide-react'
 
 const platforms = [
-  { id: 'twitter',    name: 'Twitter/X',  icon: '🐦', count: '7 posts' },
+  { id: 'twitter',    name: 'Twitter/X',  icon: '🐦', count: '3 tweets' },
   { id: 'linkedin',   name: 'LinkedIn',   icon: '💼', count: '3 posts' },
   { id: 'instagram',  name: 'Instagram',  icon: '📸', count: '3 captions' },
   { id: 'facebook',   name: 'Facebook',   icon: '👥', count: '3 posts' },
-  { id: 'threads',    name: 'Threads',    icon: '🧵', count: '5 posts' },
-  { id: 'tiktok',     name: 'TikTok',     icon: '🎵', count: '5 hooks' },
+  { id: 'threads',    name: 'Threads',    icon: '🧵', count: '3 posts' },
+  { id: 'tiktok',     name: 'TikTok',     icon: '🎵', count: '3 hook+script+tags' },
   { id: 'youtube',    name: 'YouTube',    icon: '▶️', count: '1 description' },
-  { id: 'pinterest',  name: 'Pinterest',  icon: '📌', count: '5 pins' },
-  { id: 'reddit',     name: 'Reddit',     icon: '🤖', count: '1 post' },
+  { id: 'pinterest',  name: 'Pinterest',  icon: '📌', count: '3 pins' },
+  { id: 'reddit',     name: 'Reddit',     icon: '🤖', count: '3 posts' },
   { id: 'whatsapp',   name: 'WhatsApp',   icon: '💬', count: '3 messages' },
   { id: 'newsletter', name: 'Newsletter', icon: '📰', count: '1 article' },
-  { id: 'email',      name: 'Email',      icon: '📧', count: '1 newsletter' },
+  { id: 'email',      name: 'Email',      icon: '📧', count: '1 template' },
 ]
 
 export default function Dashboard() {

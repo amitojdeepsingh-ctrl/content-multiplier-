@@ -77,12 +77,12 @@ export default function Landing() {
           {/* Hero stats */}
           <div className="grid grid-cols-3 gap-6 mt-16 max-w-2xl mx-auto">
             <div>
-              <div className="text-3xl font-bold gradient-text">7</div>
-              <div className="text-sm text-slate-400">Twitter Tweets</div>
+              <div className="text-3xl font-bold gradient-text">12</div>
+              <div className="text-sm text-slate-400">Platforms Covered</div>
             </div>
             <div>
-              <div className="text-3xl font-bold gradient-text">5</div>
-              <div className="text-sm text-slate-400">LinkedIn Posts</div>
+              <div className="text-3xl font-bold gradient-text">30+</div>
+              <div className="text-sm text-slate-400">Pieces of Content</div>
             </div>
             <div>
               <div className="text-3xl font-bold gradient-text">30s</div>

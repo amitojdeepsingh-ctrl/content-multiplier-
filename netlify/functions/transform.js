@@ -5,18 +5,18 @@ const anthropic = new Anthropic({
 });
 
 const platformInstructions = {
-  twitter:    'TWITTER: Write 7 tweets (max 280 chars each, numbered 1/7 through 7/7)',
-  linkedin:   'LINKEDIN: Write 3 LinkedIn posts (100-200 words each, professional tone)',
-  instagram:  'INSTAGRAM: Write 3 Instagram captions (80-120 words each, with emojis and 5 relevant hashtags)',
-  email:      'EMAIL: Write 1 email newsletter (200-300 words, with 3 subject line options at the top)',
-  tiktok:     'TIKTOK: Write 5 TikTok hooks (under 15 words each, punchy and scroll-stopping)',
-  facebook:   'FACEBOOK: Write 3 Facebook posts (80-150 words each, conversational and engaging, include a question to spark comments)',
-  threads:    'THREADS: Write 5 Threads posts (max 500 chars each, casual and conversational tone, like talking to a friend)',
-  youtube:    'YOUTUBE: Write 1 YouTube video description (150-200 words) with: a compelling first 2 lines, timestamps/chapters placeholder, and 10 SEO tags at the bottom prefixed with Tags:',
-  pinterest:  'PINTEREST: Write 5 Pinterest pin descriptions (50-80 words each, include 3-5 hashtags, focus on inspiration and discovery, describe the visual idea)',
-  reddit:     'REDDIT: Write 1 Reddit post with: a catchy title (under 300 chars) on the first line prefixed with "Title:", then the full post body (150-250 words, informative, no self-promotion tone, fits r/entrepreneur or r/marketing style)',
-  whatsapp:   'WHATSAPP: Write 3 WhatsApp broadcast messages (50-80 words each, friendly and personal tone, no formal language, include a clear call to action)',
+  twitter:    'TWITTER: Write 3 tweets (max 280 chars each, punchy and engaging, numbered Tweet 1, Tweet 2, Tweet 3)',
+  linkedin:   'LINKEDIN: Write 3 LinkedIn posts (100-200 words each, professional tone, each separated by a blank line)',
+  instagram:  'INSTAGRAM: Write 3 Instagram captions (80-120 words each, with emojis and 5 relevant hashtags, each separated by a blank line)',
+  facebook:   'FACEBOOK: Write 3 Facebook posts (80-150 words each, conversational and engaging, include a question to spark comments, each separated by a blank line)',
+  threads:    'THREADS: Write 3 Threads posts (max 500 chars each, casual and conversational tone like talking to a friend, each separated by a blank line)',
+  tiktok:     'TIKTOK: Write 3 TikTok video packages. Each package must have:\n- HOOK: One punchy opening line (under 15 words, scroll-stopping)\n- SCRIPT: A 20-30 second spoken script (about 60-80 words, energetic and conversational)\n- HASHTAGS: 5 relevant hashtags\nSeparate each package with "---"',
+  youtube:    'YOUTUBE: Write 1 YouTube video description (150-200 words) with: a compelling first 2 lines, timestamps/chapters placeholder, and 10 SEO tags at the bottom prefixed with "Tags:"',
+  pinterest:  'PINTEREST: Write 3 Pinterest pin descriptions (50-80 words each, include 3-5 hashtags, focus on inspiration and discovery, each separated by a blank line)',
+  reddit:     'REDDIT: Write 3 Reddit posts. Each must have a title line prefixed with "Title:" and a body (100-150 words, informative, no self-promotion tone). Separate each post with "---"',
+  whatsapp:   'WHATSAPP: Write 3 WhatsApp broadcast messages (50-80 words each, friendly and personal tone, no formal language, include a clear call to action, each separated by a blank line)',
   newsletter: 'NEWSLETTER: Write 1 long-form newsletter article (400-500 words) in Substack/Medium style with: a bold headline, engaging intro, 3 key sections with subheadings, and a closing takeaway',
+  email:      'EMAIL: Write 1 email newsletter (200-300 words) with 3 subject line options at the very top prefixed with "Subject line options:" then the full email body below',
 };
 
 export const handler = async (event) => {
