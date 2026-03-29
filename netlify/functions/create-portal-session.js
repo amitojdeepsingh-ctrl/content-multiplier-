@@ -1,41 +1,25 @@
-// netlify/functions/create-portal-session.js
-// Stripe Customer Portal Session Creation (Server-side)
-// This function creates portal sessions for managing subscriptions
+import Stripe from 'stripe';
 
-const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
-exports.handler = async (event, context) => {
-  // Only allow POST requests
+export const handler = async (event) => {
   if (event.httpMethod !== 'POST') {
     return {
-      statusCode: 400,
+      statusCode: 405,
       body: JSON.stringify({ error: 'Method not allowed' })
     };
   }
 
   try {
-    // In a real app, you'd get the customer ID from your database
-    // based on the logged-in user
-    // For now, we'll return an error - you'll need to implement this
-    // based on your user authentication system
+    const { customerId } = JSON.parse(event.body || '{}');
 
-    return {
-      statusCode: 501,
-      body: JSON.stringify({
-        error: 'Not implemented',
-        message: 'Customer portal requires user authentication integration'
-      })
-    };
+    if (!customerId) {
+      return {
+        statusCode: 400,
+        body: JSON.stringify({ error: 'Customer ID is required' })
+      };
+    }
 
-    // TODO: Implement this after you have user authentication working
-    // You'll need to:
-    // 1. Get the logged-in user from your auth system
-    // 2. Get their Stripe customer ID from your database
-    // 3. Create the portal session like this:
-    
-    /*
-    const customerId = 'cus_YOUR_CUSTOMER_ID'; // Get from your database
-    
     const portalSession = await stripe.billingPortal.sessions.create({
       customer: customerId,
       return_url: `${process.env.URL}/dashboard`,
@@ -43,20 +27,14 @@ exports.handler = async (event, context) => {
 
     return {
       statusCode: 200,
-      body: JSON.stringify({
-        url: portalSession.url,
-        sessionId: portalSession.id
-      })
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ url: portalSession.url })
     };
-    */
   } catch (error) {
     console.error('Error creating portal session:', error);
     return {
       statusCode: 500,
-      body: JSON.stringify({
-        error: 'Failed to create portal session',
-        message: error.message
-      })
+      body: JSON.stringify({ error: 'Failed to create portal session', message: error.message })
     };
   }
 };
