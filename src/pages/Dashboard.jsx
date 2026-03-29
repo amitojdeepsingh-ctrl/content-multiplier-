@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
 import { supabase } from '../lib/supabase'
-import { Copy, LogOut, Home, Calendar, Clock, CheckCircle, XCircle } from 'lucide-react'
+import { Copy, LogOut, Home, Calendar, Clock, CheckCircle, XCircle, Link, Loader } from 'lucide-react'
 
 const platforms = [
   { id: 'twitter',   name: 'Twitter',   icon: '🐦', count: '7 posts' },
@@ -17,6 +17,10 @@ export default function Dashboard() {
   const { user, profile, signOut } = useAuth()
 
   const [content, setContent] = useState('')
+  const [urlInput, setUrlInput] = useState('')
+  const [urlLoading, setUrlLoading] = useState(false)
+  const [urlError, setUrlError] = useState('')
+  const [inputMode, setInputMode] = useState('text') // 'text' or 'url'
   const [selectedPlatforms, setSelectedPlatforms] = useState(['twitter', 'linkedin', 'email'])
   const [loading, setLoading] = useState(false)
   const [results, setResults] = useState(null)
@@ -30,6 +34,29 @@ export default function Dashboard() {
   const [scheduling, setScheduling] = useState(false)
   const [scheduleSuccess, setScheduleSuccess] = useState(null) // platform name or 'all'
   const [scheduleError, setScheduleError] = useState('')
+
+  const handleFetchUrl = async () => {
+    if (!urlInput.trim()) return
+    setUrlLoading(true)
+    setUrlError('')
+    setContent('')
+
+    try {
+      const response = await fetch('/.netlify/functions/fetch-url', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url: urlInput.trim() }),
+      })
+      const data = await response.json()
+      if (!response.ok) throw new Error(data.error || 'Failed to fetch URL')
+      setContent(data.text)
+      setInputMode('text') // switch to text view so they can see what was extracted
+    } catch (err) {
+      setUrlError(err.message)
+    } finally {
+      setUrlLoading(false)
+    }
+  }
 
   const togglePlatform = (id) => {
     setSelectedPlatforms(prev =>
@@ -196,15 +223,69 @@ export default function Dashboard() {
           {/* Left — Input Panel */}
           <div className="lg:col-span-1 space-y-5">
             <div className="glass-card p-6 rounded-xl">
-              <h2 className="text-lg font-bold mb-3">Your Content</h2>
-              <textarea
-                value={content}
-                onChange={(e) => setContent(e.target.value)}
-                placeholder="Paste your blog post, transcript, or any content here..."
-                maxLength={10000}
-                className="w-full h-48 bg-slate-800/50 border border-slate-700 rounded-lg p-4 text-slate-100 placeholder:text-slate-500 focus:outline-none focus:border-indigo-500 resize-none transition"
-              />
-              <div className="text-xs text-slate-500 mt-1">{content.length} / 10,000 characters</div>
+              <div className="flex items-center justify-between mb-3">
+                <h2 className="text-lg font-bold">Your Content</h2>
+                {/* Toggle */}
+                <div className="flex bg-slate-800 rounded-lg p-1 gap-1">
+                  <button
+                    onClick={() => { setInputMode('text'); setUrlError('') }}
+                    className={`px-3 py-1 rounded-md text-xs font-semibold transition ${inputMode === 'text' ? 'bg-indigo-600 text-white' : 'text-slate-400 hover:text-white'}`}
+                  >
+                    ✏️ Paste Text
+                  </button>
+                  <button
+                    onClick={() => { setInputMode('url'); setUrlError('') }}
+                    className={`px-3 py-1 rounded-md text-xs font-semibold transition ${inputMode === 'url' ? 'bg-indigo-600 text-white' : 'text-slate-400 hover:text-white'}`}
+                  >
+                    🔗 From URL
+                  </button>
+                </div>
+              </div>
+
+              {inputMode === 'url' ? (
+                <div className="space-y-3">
+                  <p className="text-xs text-slate-400">Paste a link to any blog post, article, or webpage — we'll extract the content automatically.</p>
+                  <div className="flex gap-2">
+                    <input
+                      type="url"
+                      value={urlInput}
+                      onChange={(e) => setUrlInput(e.target.value)}
+                      onKeyDown={(e) => e.key === 'Enter' && handleFetchUrl()}
+                      placeholder="https://yourblog.com/article..."
+                      className="flex-1 bg-slate-800/50 border border-slate-700 rounded-lg px-4 py-3 text-slate-100 placeholder:text-slate-500 focus:outline-none focus:border-indigo-500 transition text-sm"
+                    />
+                    <button
+                      onClick={handleFetchUrl}
+                      disabled={urlLoading || !urlInput.trim()}
+                      className="btn-gradient px-4 py-2 rounded-lg font-bold text-sm disabled:opacity-40 flex items-center gap-2 flex-shrink-0"
+                    >
+                      {urlLoading ? <Loader size={15} className="animate-spin" /> : <Link size={15} />}
+                      {urlLoading ? 'Fetching...' : 'Fetch'}
+                    </button>
+                  </div>
+                  {urlError && (
+                    <div className="flex items-center gap-2 text-red-400 text-sm bg-red-500/10 border border-red-500/30 px-3 py-2 rounded-lg">
+                      <XCircle size={14} /> {urlError}
+                    </div>
+                  )}
+                  {content && (
+                    <div className="flex items-center gap-2 text-green-400 text-sm bg-green-500/10 border border-green-500/30 px-3 py-2 rounded-lg">
+                      <CheckCircle size={14} /> Content extracted ({content.length} chars) — click Transform to generate posts
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <>
+                  <textarea
+                    value={content}
+                    onChange={(e) => setContent(e.target.value)}
+                    placeholder="Paste your blog post, transcript, or any content here..."
+                    maxLength={10000}
+                    className="w-full h-48 bg-slate-800/50 border border-slate-700 rounded-lg p-4 text-slate-100 placeholder:text-slate-500 focus:outline-none focus:border-indigo-500 resize-none transition"
+                  />
+                  <div className="text-xs text-slate-500 mt-1">{content.length} / 10,000 characters</div>
+                </>
+              )}
             </div>
 
             <div className="glass-card p-6 rounded-xl">
