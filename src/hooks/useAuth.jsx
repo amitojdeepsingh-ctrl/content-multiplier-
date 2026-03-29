@@ -98,12 +98,18 @@ export function AuthProvider({ children }) {
   const updateProfile = async (updates) => {
     if (!user) throw new Error('Not authenticated')
 
-    const { data, error } = await supabase
+    const timeout = new Promise((_, reject) =>
+      setTimeout(() => reject(new Error('Save timed out — check your connection and try again')), 10000)
+    )
+
+    const save = supabase
       .from('profiles')
       .update(updates)
       .eq('id', user.id)
       .select()
       .single()
+
+    const { data, error } = await Promise.race([save, timeout])
 
     if (error) throw error
     setProfile(data)
